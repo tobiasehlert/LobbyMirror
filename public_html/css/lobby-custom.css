@@ -1,0 +1,87 @@
+/**
+ * Generic Lobby CSS
+ */
+
+.page-header {
+    border-bottom: 0px solid black;
+    margin-top: 70px;
+}
+.lw-topmargin {
+    margin-top: 25px;
+}
+
+
+/**
+ * Lobby Weather CSS
+ */
+
+.lw-weather-now-img {
+    text-align: center;
+}
+.lw-weather-now-img i {
+    font-size: 105px;
+    margin-top: 65px;
+    color: white;
+}
+
+.lw-weather-forcast {
+    text-align: center;
+}
+.lw-weather-forcast i {
+    font-size: 40px;
+    margin-top: 35px;
+    margin-bottom: 15px;
+    color: white;
+}
+.lw-weather-forcast-data {
+    margin-top: 25px;
+}
+
+
+/**
+ * Lobby Clock CSS
+ */
+#lw-date-name, #lw-date-date {
+    text-align: center;
+}
+
+.lw-date ul {
+    margin: 0 auto;
+    padding: 0px;
+    list-style: none;
+    text-align: center;
+}
+
+.lw-date ul h1 {
+    display: inline;
+    text-align: center;
+}
+
+.lw-date #point {
+    position: relative;
+    -moz-animation: mymove 1s ease infinite;
+    -webkit-animation: mymove 1s ease infinite;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+
+/**
+ * Lobby SL CSS
+ */
+
+.lw-sl-departures-topmargin {
+    margin-top: 10px;
+}
+
+.lw-sl-floatright {
+    float: right;
+}
+
+
+/**
+ * Lobby beautiful
+ */
+.lw-bf-compliment, .lw-bf-center {
+    text-align: center;
+}
