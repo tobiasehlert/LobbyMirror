@@ -18,6 +18,7 @@ require_once( dirname( __FILE__ ).'/../vendor/autoload.php' );
 require_once( dirname( __FILE__ ).'/../config.php' );
 
 
+
 /* ---- do not place config below this line ---- */
 
 $app = new \Slim\App;
@@ -82,7 +83,7 @@ $app->get( '/', function() use ( $app )
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-            ga('create', '<?php echo $this->get('settings')->get('lobbymirror')['GoogleAnalytics']; ?>', 'auto');
+            ga('create', '<?php echo $this->get('settings')->get('lobbymirror')['analytics']; ?>', 'auto');
             ga('send', 'pageview');
 
         </script>
@@ -232,7 +233,7 @@ $app->get( '/data/compliment', function() use ( $app )
 {
     $this->response->withHeader('LobbyMirror-Version', $this->get('settings')->get('lobbymirror')['version'] );
 
-    $ret = '';
+    $ret = array();
     header("Content-Type: application/json");
 
     // select correct compliment depending on time of day
@@ -270,7 +271,7 @@ $app->get( '/data/weather', function() use ( $app )
         $this->get('settings')->get('forecast')['options']
     );
 
-    $ret = '';
+    $ret = array();
     header("Content-Type: application/json");
 
     $ret['lw-weather-now']['lw-weather-now'] = array(
@@ -319,7 +320,7 @@ $app->get( '/data/sl/{column}', function($request, $response, $args) use ( $app 
     if ( ! ( $uid != '' ) )
         $uid = 'default';
 
-    $ret = '';
+    $ret = array();
     header("Content-Type: application/json");
 
     foreach ( $this->get('settings')->get('profile')[$uid]['commuter'][$column]['siteids'] as $siteid => $filters )
