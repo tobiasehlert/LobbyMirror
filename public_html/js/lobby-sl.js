@@ -44,12 +44,12 @@ $(document).ready(function() {
     
     // run it immediately
     doSlUpdate( '1' );
-    doSlUpdate( '2' );
+//    doSlUpdate( '2' );
 
     // schedule weather update
     setInterval( function() {
         doSlUpdate( '1' );
-        doSlUpdate( '2' );
+//        doSlUpdate( '2' );
         console.info( 'sl updated' );
     }, 60000 );
 
