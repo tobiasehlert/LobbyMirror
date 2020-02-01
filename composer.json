@@ -1,0 +1,13 @@
+{
+	"require": {
+		"slim/slim": "^3.8.1",
+		"phpmailer/phpmailer": "dev-master",
+		"php-curl-class/php-curl-class": "dev-master",
+		"curl/curl": "dev-master",
+		"turkevich/php-xml-helper": "dev-master",
+		"leonardoteixeira/pushover": "dev-master",
+		"guhelski/forecast-php": "dev-master",
+		"dflydev/fig-cookies" : "dev-master",
+		"psr/http-message" : "dev-master"
+	}
+}

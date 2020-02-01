@@ -1,0 +1,4 @@
+# files or dirs that need to be excluded..
+composer.lock
+config.php
+/vendor/
