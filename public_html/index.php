@@ -4,7 +4,7 @@
  *
  * LobbyMirror
  *  - Created 2016 by Tobias Lindberg
- *  - verion 1.0.0
+ *  - verion 1.1.0
  *
  * Theme by https://bootswatch.com/cyborg/
  *
