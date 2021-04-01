@@ -7,7 +7,7 @@
 		"turkevich/php-xml-helper": "dev-master",
 		"leonardoteixeira/pushover": "dev-master",
 		"guhelski/forecast-php": "dev-master",
-		"dflydev/fig-cookies" : "dev-master",
+		"dflydev/fig-cookies" : "dev-main",
 		"psr/http-message" : "dev-master"
 	}
 }
