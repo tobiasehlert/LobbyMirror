@@ -1,6 +1,6 @@
 {
 	"require": {
-		"slim/slim": "^3.8.1",
+		"slim/slim": "^4.7.1",
 		"phpmailer/phpmailer": "dev-master",
 		"php-curl-class/php-curl-class": "dev-master",
 		"curl/curl": "dev-master",
