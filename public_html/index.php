@@ -10,6 +10,9 @@
  *
  */
 
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Factory\AppFactory;
 
 // include composer framework
 require_once( dirname( __FILE__ ).'/../vendor/autoload.php' );
@@ -21,44 +24,17 @@ require_once( dirname( __FILE__ ).'/../config.php' );
 
 /* ---- do not place config below this line ---- */
 
-$app = new \Slim\App;
+$app = AppFactory::create();
 
-$config['displayErrorDetails'] = true;
-$app = new \Slim\App( ["settings" => $config] );
-
-$app->get( '/', function() use ( $app )
+$app->get( '/', function($request, $response, $args) use ($config)
 {
-    $this->response->withHeader('LobbyMirror-Version', $this->get('settings')->get('lobbymirror')['version'] );
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
 
-    // try to capture right UID and set the cookie
-    $profile = $this->get('settings')->get('profile');
+    $profile = $config['profile'];
     if ( array_key_exists( 'uid', $_GET ) && array_key_exists( $_GET['uid'], $profile ) )
-    {
-        $uid = $_GET['uid'];
-
-        // creating cookie
-        $this->response = Dflydev\FigCookies\FigResponseCookies::set( $this->response, Dflydev\FigCookies\SetCookie::create( 'uid' )
-                                                                     ->withValue( $uid )
-                                                                     ->withExpires( time() + 31536000 )
-                                                                     ->withPath( '/' )
-                                                                     ->withSecure( true )
-                                                                     ->withHttpOnly( true )
-                                                                    );
-    }
+	$uid = $_GET['uid'];
     else
-    {
-        // getting cookie
-        $uid = Dflydev\FigCookies\FigRequestCookies::get( $this->request, 'uid', 'default' )->getValue();
-
-        // creating cookie
-        $this->response = Dflydev\FigCookies\FigResponseCookies::set( $this->response, Dflydev\FigCookies\SetCookie::create( 'uid' )
-                                                                     ->withValue( $uid )
-                                                                     ->withExpires( time() + 31536000 )
-                                                                     ->withPath( '/' )
-                                                                     ->withSecure( true )
-                                                                     ->withHttpOnly( true )
-                                                                    );
-    }
+        $uid = 'default';
 
     ?><!DOCTYPE html>
 <html lang="en">
@@ -68,11 +44,11 @@ $app->get( '/', function() use ( $app )
         <meta name="author" content="Tobias Lindberg">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <meta http-equiv="refresh" content="<?php echo $this->get('settings')->get('lobbymirror')['reload']; ?>" />
+        <meta http-equiv="refresh" content="<?php echo $config['lobbymirror']['reload']; ?>" />
         <link rel="icon" type="image/x-icon" href="favicon.ico" />
         <link rel="stylesheet" href="css/bootstrap.min.css" media="screen">
         <link rel="stylesheet" href="css/weather-icons.min.css" media="screen">
-        <link rel="stylesheet" href="css/lobby-custom.css?v=<?php echo $this->get('settings')->get('lobbymirror')['version']; ?>" media="screen">
+        <link rel="stylesheet" href="css/lobby-custom.css?v=<?php echo $config['lobbymirror']['version']; ?>" media="screen">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="js/html5shiv.js"></script>
@@ -83,50 +59,12 @@ $app->get( '/', function() use ( $app )
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
             })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-            ga('create', '<?php echo $this->get('settings')->get('lobbymirror')['analytics']; ?>', 'auto');
+            ga('create', '<?php echo $config['lobbymirror']['analytics']; ?>', 'auto');
             ga('send', 'pageview');
 
         </script>
     </head>
     <body>
-        <?php
-        if ( array_key_exists( 'show', $_GET ) && $_GET['show'] == 'toolbar' )
-        {
-            ?>
-
-            <div class="navbar navbar-default navbar-fixed-top">
-                <div class="container" style="width:100%;" >
-                    <div class="navbar-header">
-                        <a href="/" class="navbar-brand">LobbyMirror</a>
-                        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                    </div>
-                    <div class="navbar-collapse collapse" id="navbar-main">
-                        <ul class="nav navbar-nav">
-                            <li class="dropdown">
-                                <a href="/?uid=<?php echo $uid; ?>&show=dateandweather">Date and weather</a>
-                            </li>
-                            <li>
-                                <a href="/?uid=<?php echo $uid; ?>&show=commuter">Commuter</a>
-                            </li>
-                        </ul>
-
-                        <!--
-                        <ul class="nav navbar-nav navbar-right">
-                        <li><a href="https://thelindberg.com/" target="_blank">thelindberg.com</a></li>
-                        </ul>
-                        -->
-
-                    </div>
-                </div>
-            </div>
-            <?php
-        }
-        ?>
-        
         <div class="container" style="width:100%;" >
             <div <?php /* class="page-header" */ ?> >
                 <div class="row lw-topmargin">
@@ -196,10 +134,10 @@ $app->get( '/', function() use ( $app )
                 </div>
 
                 <?php
-                if ( $this->get('settings')->get('profile')[$uid]['compliment'] !== false )
+                if ( $config['profile'][$uid]['compliment'] !== false )
                 {
                     ?>
-                    
+
                     <div class="row lw-topmargin">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                             <div style="height: 50px;"></div>
@@ -223,27 +161,27 @@ $app->get( '/', function() use ( $app )
     </body>
 </html>
 <?php
-// make return on response, else cookies don't work
-return $this->response;
+// make return
+return $response;
 } );
 
 
 // get compliment information
-$app->get( '/data/compliment', function() use ( $app )
+$app->get( '/data/compliment', function($request, $response, $args) use ($config)
 {
-    $this->response->withHeader('LobbyMirror-Version', $this->get('settings')->get('lobbymirror')['version'] );
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
 
     $ret = array();
     header("Content-Type: application/json");
 
     // select correct compliment depending on time of day
     if ( date( "H" ) >= 3 && date( "H" ) < 12 )
-        $compliments = $this->get('settings')->get('compliment')['morning'];
+        $compliments = $config['compliment']['morning'];
     elseif ( date( "H" ) >= 12 && date( "H" ) < 17 )
-        $compliments = $this->get('settings')->get('compliment')['afternoon'];
+        $compliments = $config['compliment']['afternoon'];
     else
-        $compliments = $this->get('settings')->get('compliment')['evening'];
-    
+        $compliments = $config['compliment']['evening'];
+
     // pick random compliment of array
     $ret = $compliments[ array_rand( $compliments ) ];
 
@@ -252,23 +190,22 @@ $app->get( '/data/compliment', function() use ( $app )
 } );
 
 // get weather information
-$app->get( '/data/weather', function() use ( $app )
+$app->get( '/data/weather/{uid}', function($request, $response, $args) use ($config)
 {
-    $this->response->withHeader('LobbyMirror-Version', $this->get('settings')->get('lobbymirror')['version'] );
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
 
-    // getting cookie
-    $uid = Dflydev\FigCookies\FigRequestCookies::get( $this->request, 'uid', 'default' )->getValue();
+    $uid = $request->getAttribute('uid');
     if ( ! ( $uid != '' ) )
         $uid = 'default';
 
     require_once( 'inc/forecast-io.php' );
 
-    $forecast = new \Forecast\Forecast( $this->get('settings')->get('forecast')['apikey'] );
+    $forecast = new \Forecast\Forecast( $config['forecast']['apikey'] );
     $weather = $forecast->get(
-        $this->get('settings')->get('profile')[$uid]['forecast']['latitude'],
-        $this->get('settings')->get('profile')[$uid]['forecast']['longitude'],
+        $config['profile'][$uid]['forecast']['latitude'],
+        $config['profile'][$uid]['forecast']['longitude'],
         null,
-        $this->get('settings')->get('forecast')['options']
+        $config['forecast']['options']
     );
 
     $ret = array();
@@ -306,36 +243,31 @@ $app->get( '/data/weather', function() use ( $app )
 } );
 
 // get SL information
-$app->get( '/data/sl', function($request, $response, $args) use ( $app )
-{
-    return $response->withRedirect( '/data/sl/1', 301 );
-});
-$app->get( '/data/sl/{column}', function($request, $response, $args) use ( $app )
+$app->get( '/data/sl/{uid}/{column}', function(Request $request, Response $response, $args) use ($config)
 {
     $column = $request->getAttribute('column');
-    $this->response->withHeader('LobbyMirror-Version', $this->get('settings')->get('lobbymirror')['version'] );
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
 
-    // getting cookie
-    $uid = Dflydev\FigCookies\FigRequestCookies::get( $this->request, 'uid', 'default' )->getValue();
+    $uid = $request->getAttribute('uid');
     if ( ! ( $uid != '' ) )
         $uid = 'default';
 
     $ret = array();
     header("Content-Type: application/json");
 
-    foreach ( $this->get('settings')->get('profile')[$uid]['commuter'][$column]['siteids'] as $siteid => $filters )
+    foreach ( $config['profile'][$uid]['commuter'][$column]['siteids'] as $siteid => $filters )
     {
         $sl = new \Curl\Curl();
         $sl->setOpt( CURLOPT_FOLLOWLOCATION, true );
         $SLrequest = array(
             'url'       => 'http://api.sl.se/api2/realtimedeparturesV4.json',
             'params'    => array(
-                'key'           => $this->get('settings')->get('commuter')['apikey'],
+                'key'           => $config['commuter']['apikey'],
                 'siteid'        => $siteid,
-                'TimeWindow'    => $this->get('settings')->get('profile')[$uid]['commuter'][$column]['siteids'][$siteid]['time'],
+                'TimeWindow'    => $config['profile'][$uid]['commuter'][$column]['siteids'][$siteid]['time'],
             ),
         );
-        
+
         $sl->get( $SLrequest['url'], $SLrequest['params'] );
         if ( $sl->error )
         {
@@ -361,7 +293,7 @@ $app->get( '/data/sl/{column}', function($request, $response, $args) use ( $app 
                     {
                         // creating array and saving siteid
                         $ret['lw-sl-departures'][$siteid]['lw-sl-departures-info']['lw-sl-departures-info-siteid'] = $siteid;
-                        
+
                         // check if the transportation has some departures
                         if ( array_key_exists( '0', $value ) )
                         {
@@ -388,7 +320,7 @@ $app->get( '/data/sl/{column}', function($request, $response, $args) use ( $app 
                 }
             }
         }
-        
+
         $sl->close();
     }
 

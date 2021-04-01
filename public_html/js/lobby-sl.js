@@ -1,5 +1,5 @@
-var doSlUpdate = function( column ) {
-    $.getJSON('/data/sl/'+column, function( data ) {
+var doSlUpdate = function( uid, column ) {
+    $.getJSON('/data/sl/'+uid+'/'+column, function( data ) {
 //        if ( data !== 'false' ) {
             $("#lw-sl-departures-"+column).empty();
             var SLhtml = $("#lw-sl-departures-"+column);
@@ -41,14 +41,19 @@ var doSlUpdate = function( column ) {
 };
 
 $(document).ready(function() {
-    
+
+$.urlParam = function (name) {
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.search);
+    return (results !== null) ? results[1] || 0 : false;
+}
+
     // run it immediately
-    doSlUpdate( '1' );
+    doSlUpdate( $.urlParam('uid'), '1' );
 //    doSlUpdate( '2' );
 
     // schedule weather update
     setInterval( function() {
-        doSlUpdate( '1' );
+        doSlUpdate( $.urlParam('uid'), '1' );
 //        doSlUpdate( '2' );
         console.info( 'sl updated' );
     }, 60000 );
