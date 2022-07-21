@@ -39,7 +39,7 @@ For the dashboard to fully work, you need to supply two API tokens.
 
 Link: [trafiklab.se/api/trafiklab-apis/sl/departures-4](https://developer.trafiklab.se/api/sl-realtidsinformation-4)
 
-Since the API check quite frequently for updates, you need to upgrade to [Silver][https://developer.trafiklab.se/api/sl-realtidsinformation-4] level or limit the dashboard of running.
+Since the API check quite frequently for updates, you need to upgrade to [Silver](https://developer.trafiklab.se/api/sl-realtidsinformation-4) level or limit the dashboard of running.
 
 By default you only get 10 000 requests per month, which is not sufficiently.
 
