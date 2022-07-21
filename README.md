@@ -63,5 +63,5 @@ This is how it's looking on a tablet:
 
 ## Credits
 
-- Authors: Tobias Lindberg – [List of contributors](https://github.com/tobiasehlert/teslamateapi/graphs/contributors)
+- Authors: Tobias Lindberg – [List of contributors](https://github.com/tobiasehlert/LobbyMirror/graphs/contributors)
 - Distributed under MIT License
