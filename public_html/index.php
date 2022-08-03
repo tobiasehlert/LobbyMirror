@@ -55,7 +55,7 @@ $app->get( '/', function($request, $response, $args) use ($config)
             <script src="js/respond.min.js"></script>
         <![endif]-->
 
-        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $config['lobbymirror']['analytics']; ?>"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
@@ -63,6 +63,7 @@ $app->get( '/', function($request, $response, $args) use ($config)
             gtag('js', new Date());
             gtag('config', '<?php echo $config['lobbymirror']['analytics']; ?>');
         </script>
+
     </head>
     <body>
         <div class="container" style="width:100%;" >
