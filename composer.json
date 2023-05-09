@@ -4,6 +4,8 @@
     "slim/psr7": "^1.4",
     "php-curl-class/php-curl-class": "^9.6",
     "curl/curl": "^2.3",
-    "guhelski/forecast-php": "dev-master"
+    "cmfcmf/openweathermap-php-api": "^3.3",
+    "nyholm/psr7": "^1.8",
+    "guzzlehttp/guzzle": "^7.0"
   }
 }

@@ -43,11 +43,13 @@ Since the API check quite frequently for updates, you need to upgrade to [Silver
 
 By default you only get 10 000 requests per month, which is not sufficiently.
 
-#### Weatherforcast with Dark Sky API
+#### Weatherforcast with OpenWeather
 
-Link: [darksky.net](https://darksky.net)
+Link: [openweathermap.org](https://openweathermap.org)
 
-_Due to termination by Apply, Dark Sky is no longer accepting new signups._
+You need to register an account and get an API key.
+
+By default you get 1 000 API calls per day for free, which should be sufficient.
 
 ## Screenshots
 

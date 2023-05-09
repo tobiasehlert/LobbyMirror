@@ -17,7 +17,7 @@ $config = array(
     ),
     'profile'   => array(
         'example'   => array(
-            'forecast'  => array(
+            'weather'  => array(
                 'latitude'  => '59.3613',
                 'longitude' => '17.8315',
             ),
@@ -62,12 +62,11 @@ $config = array(
             'Hi, sexy!',
         ),
     ),
-    'forecast'  => array(
+    'weather'  => array(
         'apikey'    => 'abcdefghijklmnopqrstuvvxyz123456',
         'options'   => array(
             'units'     => 'si',
             'lang'      => 'en',
-            'exclude'   => 'flags,minutely,hourly',
         ),
     ),
     'commuter'  => array(
