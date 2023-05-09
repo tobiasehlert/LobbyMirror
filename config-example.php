@@ -67,7 +67,6 @@ $config = array(
         'options'   => array(
             'units'     => 'si',
             'lang'      => 'en',
-            'exclude'   => 'flags,minutely,hourly',
         ),
     ),
     'commuter'  => array(
