@@ -1,12 +1,15 @@
 <?php
 
 /**
- *
  * LobbyMirror
  *  - Created 2016 by Tobias Lindberg
- *
- * Theme by https://bootswatch.com/cyborg/
- *
+ *  - GitHub https://github.com/tobiasehlert/LobbyMirror
+ * 
+ * Credits
+ *  - Theme by https://bootswatch.com/cyborg/
+ *  - Train data by https://www.trafiklab.se/
+ *  - Weather data by https://openweathermap.org/
+ *  - Weather icons by https://erikflowers.github.io/weather-icons/
  */
 
 $config = array(
@@ -73,5 +76,3 @@ $config = array(
         'apikey'    => 'abcdefghijklmnopqrstuvvxyz123456',
     ),
 );
-
-?>

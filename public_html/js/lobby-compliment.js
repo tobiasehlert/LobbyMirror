@@ -1,18 +1,16 @@
-var doComplimentUpdate = function() {
-    $.getJSON('/data/compliment', function( data ) {
-        $( "#lw-bf-compliment" ).html( data );
+var doComplimentUpdate = function () {
+    $.getJSON('/data/compliment', function (data) {
+        $("#lw-bf-compliment").html(data);
     });
 };
 
-$(document).ready(function() {
-    
+$(document).ready(function () {
     // run it immediately
     doComplimentUpdate();
 
     // schedule weather update
-    setInterval( function() {
+    setInterval(function () {
         doComplimentUpdate();
-        console.info( 'compliment updated' );
-    }, 30000 );
-
+        console.info('compliment updated');
+    }, 30000);
 });

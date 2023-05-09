@@ -1,13 +1,15 @@
 <?php
 
 /**
- *
  * LobbyMirror
  *  - Created 2016 by Tobias Lindberg
- *  - verion 1.1.0
- *
- * Theme by https://bootswatch.com/cyborg/
- *
+ *  - GitHub https://github.com/tobiasehlert/LobbyMirror
+ * 
+ * Credits
+ *  - Theme by https://bootswatch.com/cyborg/
+ *  - Train data by https://www.trafiklab.se/
+ *  - Weather data by https://openweathermap.org/
+ *  - Weather icons by https://erikflowers.github.io/weather-icons/
  */
 
 use Cmfcmf\OpenWeatherMap;
@@ -30,18 +32,19 @@ require_once(dirname(__FILE__) . '/inc/weather-icons.php');
 
 $app = AppFactory::create();
 
-$app->get( '/', function($request, $response, $args) use ($config)
-{
-    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
+$app->get('/', function ($request, $response, $args) use ($config) {
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version']);
 
     $profile = $config['profile'];
-    if ( array_key_exists( 'uid', $_GET ) && array_key_exists( $_GET['uid'], $profile ) )
-	$uid = $_GET['uid'];
+    if (array_key_exists('uid', $_GET) && array_key_exists($_GET['uid'], $profile))
+        $uid = $_GET['uid'];
     else
         $uid = 'default';
 
-    ?><!DOCTYPE html>
-<html lang="en">
+?>
+    <!DOCTYPE html>
+    <html lang="en">
+
     <head>
         <meta charset="utf-8">
         <title>LobbyMirror by Lindberg</title>
@@ -63,15 +66,19 @@ $app->get( '/', function($request, $response, $args) use ($config)
         <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $config['lobbymirror']['analytics']; ?>"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
+
+            function gtag() {
+                dataLayer.push(arguments);
+            }
             gtag('js', new Date());
             gtag('config', '<?php echo $config['lobbymirror']['analytics']; ?>');
         </script>
 
     </head>
+
     <body>
-        <div class="container" style="width:100%;" >
-            <div <?php /* class="page-header" */ ?> >
+        <div class="container" style="width:100%;">
+            <div <?php /* class="page-header" */ ?>>
                 <div class="row lw-topmargin">
                     <div class="col-xs-12 col-sm-6 col-md-5 col-lg-4">
 
@@ -102,6 +109,8 @@ $app->get( '/', function($request, $response, $args) use ($config)
                                     <h6>Sunrise:&nbsp;<span id="lw-weather-now-sunriseTime">-</span></h6>
                                     <h6>Sunset:&nbsp;<span id="lw-weather-now-sunsetTime">-</span></h6>
                                     <h6>Cloudcover:&nbsp;<span id="lw-weather-now-cloudcover">-</span>&nbsp;%</h6>
+                                    <h6>Humidity:&nbsp;<span id="lw-weather-now-humidity">-</span>&nbsp;%</h6>
+                                    <h6>Pressure:&nbsp;<span id="lw-weather-now-pressure">-</span>&nbsp;hPa</h6>
                                     <h6>Windspeed:&nbsp;<span id="lw-weather-now-windSpeed">-</span>&nbsp;m/s</h6>
                                 </div>
                             </div>
@@ -109,9 +118,8 @@ $app->get( '/', function($request, $response, $args) use ($config)
 
                         <div id="lw-weather-forcast" class="row">
                             <?php
-                            for ( $i = 0; $i <= 5; $i++ )
-                            {
-                                ?>
+                            for ($i = 0; $i <= 5; $i++) {
+                            ?>
 
                                 <div id="lw-weather-forcast-<?php echo $i; ?>" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
                                     <div id="lw-weather-forcast-<?php echo $i; ?>-img" class="lw-weather-forcast">
@@ -122,7 +130,7 @@ $app->get( '/', function($request, $response, $args) use ($config)
 
                                     </div>
                                 </div><!-- #lw-weather-forcast-<?php echo $i; ?> -->
-                                <?php
+                            <?php
                             }
                             ?>
 
@@ -139,19 +147,18 @@ $app->get( '/', function($request, $response, $args) use ($config)
                 </div>
 
                 <?php
-                if ( $config['profile'][$uid]['compliment'] !== false )
-                {
-                    ?>
+                if ($config['profile'][$uid]['compliment'] !== false) {
+                ?>
 
                     <div class="row lw-topmargin">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                             <div style="height: 50px;"></div>
                             <div class="lw-bf-compliment">
-                                <h3 id="lw-bf-compliment" class="lw-bf-center" >You look gorgeous today !!</h3>
+                                <h3 id="lw-bf-compliment" class="lw-bf-center">You look gorgeous today !!</h3>
                             </div>
                         </div>
                     </div>
-                    <?php
+                <?php
                 }
                 ?>
 
@@ -159,40 +166,40 @@ $app->get( '/', function($request, $response, $args) use ($config)
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
         <script src="js/bootstrap.min.js"></script>
-        <script src="js/lobby-clock.js" ></script>
-        <script src="js/lobby-weather.js" ></script>
-        <script src="js/lobby-sl.js" ></script>
-        <script src="js/lobby-compliment.js" ></script>
+        <script src="js/lobby-clock.js"></script>
+        <script src="js/lobby-weather.js"></script>
+        <script src="js/lobby-sl.js"></script>
+        <script src="js/lobby-compliment.js"></script>
     </body>
-</html>
+
+    </html>
 <?php
-// make return
-return $response;
-} );
+    // make return
+    return $response;
+});
 
 
 // get compliment information
-$app->get( '/data/compliment', function($request, $response, $args) use ($config)
-{
-    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
+$app->get('/data/compliment', function ($request, $response, $args) use ($config) {
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version']);
 
     $ret = array();
     header("Content-Type: application/json");
 
     // select correct compliment depending on time of day
-    if ( date( "H" ) >= 3 && date( "H" ) < 12 )
+    if (date("H") >= 3 && date("H") < 12)
         $compliments = $config['compliment']['morning'];
-    elseif ( date( "H" ) >= 12 && date( "H" ) < 17 )
+    elseif (date("H") >= 12 && date("H") < 17)
         $compliments = $config['compliment']['afternoon'];
     else
         $compliments = $config['compliment']['evening'];
 
     // pick random compliment of array
-    $ret = $compliments[ array_rand( $compliments ) ];
+    $ret = $compliments[array_rand($compliments)];
 
-    echo json_encode( $ret );
+    echo json_encode($ret);
     exit;
-} );
+});
 
 // get weather information
 $app->get('/data/weather/{uid}', function ($request, $response, $args) use ($config) {
@@ -252,22 +259,20 @@ $app->get('/data/weather/{uid}', function ($request, $response, $args) use ($con
 });
 
 // get SL information
-$app->get( '/data/sl/{uid}/{column}', function(Request $request, Response $response, $args) use ($config)
-{
+$app->get('/data/sl/{uid}/{column}', function (Request $request, Response $response, $args) use ($config) {
     $column = $request->getAttribute('column');
-    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
+    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version']);
 
     $uid = $request->getAttribute('uid');
-    if ( ! ( $uid != '' ) )
+    if (!($uid != ''))
         $uid = 'default';
 
     $ret = array();
     header("Content-Type: application/json");
 
-    foreach ( $config['profile'][$uid]['commuter'][$column]['siteids'] as $siteid => $filters )
-    {
+    foreach ($config['profile'][$uid]['commuter'][$column]['siteids'] as $siteid => $filters) {
         $sl = new \Curl\Curl();
-        $sl->setOpt( CURLOPT_FOLLOWLOCATION, true );
+        $sl->setOpt(CURLOPT_FOLLOWLOCATION, true);
         $SLrequest = array(
             'url'       => 'http://api.sl.se/api2/realtimedeparturesV4.json',
             'params'    => array(
@@ -277,53 +282,43 @@ $app->get( '/data/sl/{uid}/{column}', function(Request $request, Response $respo
             ),
         );
 
-        $sl->get( $SLrequest['url'], $SLrequest['params'] );
-        if ( $sl->error )
-        {
-            error_log( 'Error on SL quest nr 1: '.$sl->errorCode.': '.$sl->errorMessage.' - '.$sl->response );
+        $sl->get($SLrequest['url'], $SLrequest['params']);
+        if ($sl->error) {
+            error_log('Error on SL quest nr 1: ' . $sl->errorCode . ': ' . $sl->errorMessage . ' - ' . $sl->response);
             // make new retry on curl request
             $sl->close();
             $sl = new \Curl\Curl();
-            $sl->setOpt( CURLOPT_FOLLOWLOCATION, true );
-            $sl->get( $SLrequest['url'], $SLrequest['params'] );
+            $sl->setOpt(CURLOPT_FOLLOWLOCATION, true);
+            $sl->get($SLrequest['url'], $SLrequest['params']);
         }
 
-        if ( ! $sl->error )
-        {
+        if (!$sl->error) {
             $filter_types = '';
-            if ( strpos( $filters['filter'], ',') !== false || strlen( $filters['filter'] ) >= 1 )
-                $filter_types = explode( ',', $filters['filter'] );
+            if (strpos($filters['filter'], ',') !== false || strlen($filters['filter']) >= 1)
+                $filter_types = explode(',', $filters['filter']);
 
-            foreach ( $sl->response->ResponseData as $key => $value )
-            {
-                if ( is_array( $value ) && $key != 'StopPointDeviations' && $key != 'LatestUpdates' && $key != 'DataAge' )
-                {
-                    if ( ! ( is_array( $filter_types ) ) || is_array( $filter_types ) && in_array( strtolower( $key ), $filter_types ) )
-                    {
+            foreach ($sl->response->ResponseData as $key => $value) {
+                if (is_array($value) && $key != 'StopPointDeviations' && $key != 'LatestUpdates' && $key != 'DataAge') {
+                    if (!(is_array($filter_types)) || is_array($filter_types) && in_array(strtolower($key), $filter_types)) {
                         // creating array and saving siteid
                         $ret['lw-sl-departures'][$siteid]['lw-sl-departures-info']['lw-sl-departures-info-siteid'] = $siteid;
 
                         // check if the transportation has some departures
-                        if ( array_key_exists( '0', $value ) )
-                        {
-                            foreach ( $value as $key2 => $value2 )
-                            {
-                                $grouptype = 'lw-sl-departures-data-'.strtolower( $key );
-                                if ( $filters['direction'] == $value2->JourneyDirection || $filters['direction'] == '' )
-                                {
-                                    $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype.'-'.$key2] = array(
-                                        $grouptype.'-'.$key2.'-LineNumber'        => $value2->LineNumber,
-                                        $grouptype.'-'.$key2.'-Destination'       => $value2->Destination,
-                                        $grouptype.'-'.$key2.'-DisplayTime'       => $value2->DisplayTime,
+                        if (array_key_exists('0', $value)) {
+                            foreach ($value as $key2 => $value2) {
+                                $grouptype = 'lw-sl-departures-data-' . strtolower($key);
+                                if ($filters['direction'] == $value2->JourneyDirection || $filters['direction'] == '') {
+                                    $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype . '-' . $key2] = array(
+                                        $grouptype . '-' . $key2 . '-LineNumber'    => $value2->LineNumber,
+                                        $grouptype . '-' . $key2 . '-Destination'   => $value2->Destination,
+                                        $grouptype . '-' . $key2 . '-DisplayTime'   => $value2->DisplayTime,
                                     );
                                 }
                             }
                             $ret['lw-sl-departures'][$siteid]['lw-sl-departures-info']['lw-sl-departures-info-name'] = $value2->StopAreaName;
-                            $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype.'-type'] = $key;
+                            $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype . '-type'] = $key;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         // filter is set to not include this travel type
                     }
                 }
@@ -333,10 +328,9 @@ $app->get( '/data/sl/{uid}/{column}', function(Request $request, Response $respo
         $sl->close();
     }
 
-    echo json_encode( $ret );
+    echo json_encode($ret);
     exit;
-
-} );
+});
 
 
 // execute the framework
