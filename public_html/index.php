@@ -10,15 +10,19 @@
  *
  */
 
+use Cmfcmf\OpenWeatherMap;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
 // include composer framework
-require_once( dirname( __FILE__ ).'/../vendor/autoload.php' );
+require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
 // include config for lobbymirror project
-require_once( dirname( __FILE__ ).'/../config.php' );
+require_once(dirname(__FILE__) . '/../config.php');
+
+// include weather icons
+require_once(dirname(__FILE__) . '/inc/weather-icons.php');
 
 
 
@@ -191,57 +195,61 @@ $app->get( '/data/compliment', function($request, $response, $args) use ($config
 } );
 
 // get weather information
-$app->get( '/data/weather/{uid}', function($request, $response, $args) use ($config)
-{
-    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version'] );
-
+$app->get('/data/weather/{uid}', function ($request, $response, $args) use ($config) {
     $uid = $request->getAttribute('uid');
-    if ( ! ( $uid != '' ) )
+    if ($uid == "false" || $uid == 0) {
         $uid = 'default';
+    }
 
-    require_once( 'inc/forecast-io.php' );
-
-    $forecast = new \Forecast\Forecast( $config['forecast']['apikey'] );
-    $weather = $forecast->get(
-        $config['profile'][$uid]['forecast']['latitude'],
-        $config['profile'][$uid]['forecast']['longitude'],
-        null,
-        $config['forecast']['options']
-    );
+    $httpClient = new \GuzzleHttp\Client();
+    $httpRequestFactory = new \Nyholm\Psr7\Factory\Psr17Factory();
+    $owm = new OpenWeatherMap($config['weather']['apikey'], $httpClient, $httpRequestFactory);
 
     $ret = array();
     header("Content-Type: application/json");
 
+    $weather = $owm->getWeather(
+        [
+            'lat' => $config['profile'][$uid]['weather']['latitude'],
+            'lon' => $config['profile'][$uid]['weather']['longitude'],
+        ],
+        $config['weather']['options']['units'],
+        $config['weather']['options']['lang']
+    );
     $ret['lw-weather-now']['lw-weather-now'] = array(
-        'lw-weather-now-summary'            => $weather->currently->summary,
-        'lw-weather-now-icon'               => getWeatherIcon( $weather->currently->icon ),
-        'lw-weather-now-temperature'        => ceil( $weather->currently->temperature ),
-//        'lw-weather-now-humidity'           => ( $weather->currently->humidity * 100 ),
-        'lw-weather-now-cloudcover'         => ( $weather->currently->cloudCover * 100 ),
-        'lw-weather-now-windSpeed'          => ceil( $weather->currently->windSpeed )
+        'lw-weather-now-summary'        => $weather->weather->description,
+        'lw-weather-now-icon'           => getWeatherIcon($weather->weather->id, $weather->weather->icon),
+        'lw-weather-now-temperature'    => round($weather->temperature->now->getValue(), 1),
+        'lw-weather-now-humidity'       => $weather->humidity->getValue(),
+        'lw-weather-now-cloudcover'     => $weather->clouds->getValue(),
+        'lw-weather-now-windSpeed'      => round($weather->wind->speed->getValue(), 1),
+        'lw-weather-now-pressure'       => $weather->pressure->getValue(),
+        'lw-weather-now-sunriseTime'    => $weather->sun->rise->setTimezone($weather->city->timezone)->format('H:i'),
+        'lw-weather-now-sunsetTime'     => $weather->sun->set->setTimezone($weather->city->timezone)->format('H:i'),
     );
 
-    foreach ( $weather->daily->data as $key => $value )
-    {
-        if ( $key == 0 )
-        {
-            $ret['lw-weather-now']['lw-weather-now']['lw-weather-now-sunriseTime'] = date( "H:i", $value->sunriseTime );
-            $ret['lw-weather-now']['lw-weather-now']['lw-weather-now-sunsetTime']  = date( "H:i", $value->sunsetTime );
-        }
-        if ( $key == 7 )
-        {}
-        else
-            $ret['lw-weather-forcast']['lw-weather-forcast-'.$key] = array(
-                'lw-weather-forcast-'.$key.'-icon'              => getWeatherIcon( $value->icon ),
-                'lw-weather-forcast-'.$key.'-temperatureMin'    => ceil( $value->temperatureMin ),
-                'lw-weather-forcast-'.$key.'-temperatureMax'    => ceil( $value->temperatureMax ),
-                'lw-weather-forcast-'.$key.'-time'              => date("D", $value->sunriseTime)
-            );
+    $forecasts = $owm->getWeatherForecast(
+        [
+            'lat' => $config['profile'][$uid]['weather']['latitude'],
+            'lon' => $config['profile'][$uid]['weather']['longitude'],
+        ],
+        $config['weather']['options']['units'],
+        $config['weather']['options']['lang'],
+        '',
+        6
+    );
+    foreach ($forecasts as $id => $forecast) {
+        $ret['lw-weather-forcast']['lw-weather-forcast-' . $id] = array(
+            'lw-weather-forcast-' . $id . '-icon'           => getWeatherIcon($forecast->weather->id, $forecast->weather->icon),
+            'lw-weather-forcast-' . $id . '-temperatureMin' => ceil($forecast->temperature->min->getValue()),
+            'lw-weather-forcast-' . $id . '-temperatureMax' => ceil($forecast->temperature->max->getValue()),
+            'lw-weather-forcast-' . $id . '-time'           => $forecast->time->day->setTimezone($weather->city->timezone)->format('D'),
+        );
     }
 
-    echo json_encode( $ret );
+    echo json_encode($ret);
     exit;
-} );
+});
 
 // get SL information
 $app->get( '/data/sl/{uid}/{column}', function(Request $request, Response $response, $args) use ($config)
