@@ -202,10 +202,7 @@ $app->get('/data/compliment', function ($request, $response, $args) use ($config
 
 // get weather information
 $app->get('/data/weather/{uid}', function ($request, $response, $args) use ($config) {
-    $uid = $request->getAttribute('uid');
-    if ($uid == "false" || $uid == 0) {
-        $uid = 'default';
-    }
+    $uid = $request->getAttribute('uid', 'default');
 
     $httpClient = new \GuzzleHttp\Client();
     $httpRequestFactory = new \Nyholm\Psr7\Factory\Psr17Factory();
@@ -259,10 +256,7 @@ $app->get('/data/weather/{uid}', function ($request, $response, $args) use ($con
 
 // get commuter information
 $app->get('/data/commuter/{uid}', function (Request $request, Response $response, $args) use ($config) {
-    $uid = $request->getAttribute('uid');
-    if ($uid == "false" || $uid == 0) {
-        $uid = 'default';
-    }
+    $uid = $request->getAttribute('uid', 'default');
 
     $ret = array();
     header("Content-Type: application/json");
