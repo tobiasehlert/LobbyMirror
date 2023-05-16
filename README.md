@@ -1,6 +1,6 @@
 # LobbyMirror
 
-Web project that shows both departures for [SL](https://sl.se) (Greater Stockholm Local Transit Company) and weather information (by [Dark Sky](https://darksky.net)).
+Web project that shows both departures for commuter within Sweden (by [trafiklab.se](https://www.trafiklab.se)) and weather information (by [openweathermap.org](https://openweathermap.org)).
 
 ### Table of Contents
 
@@ -35,13 +35,13 @@ cp config-example.php config.php
 
 For the dashboard to fully work, you need to supply two API tokens.
 
-#### SL Realtidsinformation 4 (by [trafiklab.se](https://www.trafiklab.se))
+#### ResRobot Timetables (by [trafiklab.se](https://www.trafiklab.se))
 
-Link: [trafiklab.se/api/trafiklab-apis/sl/departures-4](https://developer.trafiklab.se/api/sl-realtidsinformation-4)
+Link: [trafiklab.se/api/trafiklab-apis/resrobot-v21/timetables](https://www.trafiklab.se/api/trafiklab-apis/resrobot-v21/timetables/)
 
-Since the API check quite frequently for updates, you need to upgrade to [Silver](https://developer.trafiklab.se/api/sl-realtidsinformation-4) level or limit the dashboard of running.
+Since the API check quite frequently for updates, you need to upgrade to a higher level or limit the dashboard.
 
-By default you only get 10 000 requests per month, which is not sufficiently.
+By default you only get 30 000 requests per month, which is not sufficiently.
 
 #### Weatherforcast with OpenWeather
 
@@ -60,8 +60,6 @@ This is the view of LobbyMirror in a browser:
 This is how it's looking on a tablet:
 
 ![LobbyMirror on a tablet](./screenshots/lobbymirror-tablet.jpg)
-
-
 
 ## Credits
 
