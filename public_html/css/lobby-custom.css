@@ -72,14 +72,14 @@
 
 
 /**
- * Lobby SL CSS
+ * Lobby Commuter CSS
  */
 
-.lw-sl-departures-topmargin {
+.lw-commuter-departures-topmargin {
     margin-top: 10px;
 }
 
-.lw-sl-floatright {
+.lw-commuter-floatright {
     float: right;
 }
 

@@ -13,20 +13,22 @@
  */
 
 use Cmfcmf\OpenWeatherMap;
+use Trafiklab\ResRobot\ResRobotWrapper;
+use Trafiklab\Common\Model\Enum\TimeTableType;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Symfony\Component\Yaml\Parser as YamlParser;
 use Slim\Factory\AppFactory;
 
 // include composer framework
 require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
-// include config for lobbymirror project
-require_once(dirname(__FILE__) . '/../config.php');
-
 // include weather icons
 require_once(dirname(__FILE__) . '/inc/weather-icons.php');
 
-
+// load config.yml
+$array = new YamlParser();
+$config = $array->parseFile(dirname(__FILE__) . '/../config.yml');
 
 /* ---- do not place config below this line ---- */
 
@@ -137,12 +139,9 @@ $app->get('/', function ($request, $response, $args) use ($config) {
                         </div><!-- #lw-weather-forcast -->
 
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-1 col-lg-2"></div>
+                    <div class="col-xs-12 col-sm-6 col-md-4 col-lg-5"></div>
                     <div class="col-xs-12 col-sm-5 col-md-3 col-lg-3">
-                        <div id="lw-sl-departures-2"></div>
-                    </div>
-                    <div class="col-xs-12 col-sm-5 col-md-3 col-lg-3">
-                        <div id="lw-sl-departures-1"></div>
+                        <div id="lw-commuter-departures-1"></div>
                     </div>
                 </div>
 
@@ -168,7 +167,7 @@ $app->get('/', function ($request, $response, $args) use ($config) {
         <script src="js/bootstrap.min.js"></script>
         <script src="js/lobby-clock.js"></script>
         <script src="js/lobby-weather.js"></script>
-        <script src="js/lobby-sl.js"></script>
+        <script src="js/lobby-commuter.js"></script>
         <script src="js/lobby-compliment.js"></script>
     </body>
 
@@ -258,80 +257,105 @@ $app->get('/data/weather/{uid}', function ($request, $response, $args) use ($con
     exit;
 });
 
-// get SL information
-$app->get('/data/sl/{uid}/{column}', function (Request $request, Response $response, $args) use ($config) {
-    $column = $request->getAttribute('column');
-    $response->withHeader('LobbyMirror-Version', $config['lobbymirror']['version']);
-
+// get commuter information
+$app->get('/data/commuter/{uid}', function (Request $request, Response $response, $args) use ($config) {
     $uid = $request->getAttribute('uid');
-    if (!($uid != ''))
+    if ($uid == "false" || $uid == 0) {
         $uid = 'default';
+    }
 
     $ret = array();
     header("Content-Type: application/json");
 
-    foreach ($config['profile'][$uid]['commuter'][$column]['siteids'] as $siteid => $filters) {
-        $sl = new \Curl\Curl();
-        $sl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-        $SLrequest = array(
-            'url'       => 'http://api.sl.se/api2/realtimedeparturesV4.json',
-            'params'    => array(
-                'key'           => $config['commuter']['apikey'],
-                'siteid'        => $siteid,
-                'TimeWindow'    => $config['profile'][$uid]['commuter'][$column]['siteids'][$siteid]['time'],
-            ),
+    foreach ($config['profile'][$uid]['commuter'] as $siteid => $filters) {
+        # create array if null (when it's missing in config)
+        if ($filters == null)
+            $filters = array();
+
+        $wrapper = new ResRobotWrapper();
+        $wrapper->setUserAgent('LobbyMirror-Version', $config['lobbymirror']['version']);
+        $wrapper->setTimeTablesApiKey($config['commuter']['apikey']);
+
+        $wrapper2 = $wrapper->createTimeTableRequestObject();
+        $wrapper2->setStopId($siteid);
+        $wrapper2->setTimeTableType(TimeTableType::DEPARTURES);
+
+        $response = $wrapper->getTimeTable($wrapper2);
+
+        $i = 0;
+        $ret['lw-commuter-departures'][$siteid]['lw-commuter-departures-info'] = array(
+            "lw-commuter-departures-info-siteid" => $siteid,
         );
 
-        $sl->get($SLrequest['url'], $SLrequest['params']);
-        if ($sl->error) {
-            error_log('Error on SL quest nr 1: ' . $sl->errorCode . ': ' . $sl->errorMessage . ' - ' . $sl->response);
-            // make new retry on curl request
-            $sl->close();
-            $sl = new \Curl\Curl();
-            $sl->setOpt(CURLOPT_FOLLOWLOCATION, true);
-            $sl->get($SLrequest['url'], $SLrequest['params']);
-        }
+        # loop over all responses with $response->getTimetable()
+        foreach ($response->getTimetable() as $timeTableEntry) {
+            $allowed = false;
+            $data = array();
 
-        if (!$sl->error) {
-            $filter_types = '';
-            if (strpos($filters['filter'], ',') !== false || strlen($filters['filter']) >= 1)
-                $filter_types = explode(',', $filters['filter']);
+            # set stop name
+            if ($i == 0)
+                $ret['lw-commuter-departures'][$siteid]['lw-commuter-departures-info']['lw-commuter-departures-info-name'] = preg_replace('/\s\(.*/', '', $timeTableEntry->getStopName());
 
-            foreach ($sl->response->ResponseData as $key => $value) {
-                if (is_array($value) && $key != 'StopPointDeviations' && $key != 'LatestUpdates' && $key != 'DataAge') {
-                    if (!(is_array($filter_types)) || is_array($filter_types) && in_array(strtolower($key), $filter_types)) {
-                        // creating array and saving siteid
-                        $ret['lw-sl-departures'][$siteid]['lw-sl-departures-info']['lw-sl-departures-info-siteid'] = $siteid;
+            # get data from $timeTableEntry
+            $data['transportType'] = strtolower($timeTableEntry->getTransportType());
+            $data['stopName'] = $timeTableEntry->getStopName();
+            $data['lineNumber'] = $timeTableEntry->getLineNumber();
+            $data['direction'] = preg_replace('/\s\(.*/', '', $timeTableEntry->getDirection());
 
-                        // check if the transportation has some departures
-                        if (array_key_exists('0', $value)) {
-                            foreach ($value as $key2 => $value2) {
-                                $grouptype = 'lw-sl-departures-data-' . strtolower($key);
-                                if ($filters['direction'] == $value2->JourneyDirection || $filters['direction'] == '') {
-                                    $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype . '-' . $key2] = array(
-                                        $grouptype . '-' . $key2 . '-LineNumber'    => $value2->LineNumber,
-                                        $grouptype . '-' . $key2 . '-Destination'   => $value2->Destination,
-                                        $grouptype . '-' . $key2 . '-DisplayTime'   => $value2->DisplayTime,
-                                    );
-                                }
-                            }
-                            $ret['lw-sl-departures'][$siteid]['lw-sl-departures-info']['lw-sl-departures-info-name'] = $value2->StopAreaName;
-                            $ret['lw-sl-departures'][$siteid]['lw-sl-departures-data'][$grouptype][$grouptype . '-type'] = $key;
-                        }
-                    } else {
-                        // filter is set to not include this travel type
-                    }
+            # get minutes to departure
+            $data['minutesToDeparture'] = $timeTableEntry->getScheduledStopTime()->diff(new DateTime())->format('%i');
+            /*
+            if ($timeTableEntry->getEstimatedStopTime() != null) {
+                $data['minutesToDeparture'] = $timeTableEntry->getEstimatedStopTime()->diff(new DateTime())->format('%i');
+            } else {
+                $data['minutesToDeparture'] = $timeTableEntry->getScheduledStopTime()->diff(new DateTime())->format('%i');
+            }
+            */
+
+            # check if time is set in filter and if it is less than the time to departure
+            if (!array_key_exists('time', $filters) || $filters['time'] >= $data['minutesToDeparture']) {
+                $allowed = true;
+            }
+
+            # manipulate minutes to departure
+            if ($data['minutesToDeparture'] > 30) {
+                # write time in H:i when more than 30 minutes
+                $data['minutesToDeparture'] = $timeTableEntry->getScheduledStopTime()->format('H:i');
+            } elseif ($data['minutesToDeparture'] == 0) {
+                # write "Now" when 0 minutes
+                $data['minutesToDeparture'] = 'Now';
+            } else {
+                # write minutes and add "min" when less than 30 minutes
+                $data['minutesToDeparture'] = $data['minutesToDeparture'] . ' min';
+            }
+
+            # check if filter is set and if it is the same as the transport type
+            if (array_key_exists('filter', $filters) && $filters['filter'] != "" && $allowed) {
+                if ($filters['filter'] == $data['transportType']) {
+                    $allowed = true;
+                } else {
+                    $allowed = false;
                 }
             }
-        }
 
-        $sl->close();
+            # build array for return
+            if ($allowed) {
+                $ret['lw-commuter-departures'][$siteid]['lw-commuter-departures-data']["lw-commuter-departures-data-" . $data['transportType']]["lw-commuter-departures-data-" . $data['transportType'] . "-type"] = ucfirst($data['transportType']);
+                $ret['lw-commuter-departures'][$siteid]['lw-commuter-departures-data']["lw-commuter-departures-data-" . $data['transportType']]["lw-commuter-departures-data-" . $data['transportType'] . "-" . $i] = array(
+                    "lw-commuter-departures-data-" . $data['transportType'] . "-" . $i . "-LineNumber" => $data['lineNumber'],
+                    "lw-commuter-departures-data-" . $data['transportType'] . "-" . $i . "-Destination" => $data['direction'],
+                    "lw-commuter-departures-data-" . $data['transportType'] . "-" . $i . "-DisplayTime" => $data['minutesToDeparture'],
+                );
+            }
+
+            # increas counter
+            $i++;
+        }
     }
 
     echo json_encode($ret);
     exit;
 });
-
 
 // execute the framework
 $app->run();

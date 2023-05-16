@@ -1,0 +1,36 @@
+lobbymirror:
+  version: 2.0.0
+  reload: 1800
+  analytics: UA-XXXXXXXX-X
+profile:
+  example:
+    weather:
+      latitude: 59.326941885064365
+      longitude: 18.07166575405429
+    commuter:
+      5775:
+      5762:
+      9701:
+        filter: train
+        time: 15
+    compliment: true
+compliment:
+  morning:
+    - "Good morning, handsome!"
+    - "Enjoy your day!"
+    - "How was your sleep?"
+  afternoon:
+    - "Hello, beauty!"
+    - "You look sexy!"
+    - "Looking good today!"
+  evening:
+    - "Wow, you look hot!"
+    - "You look nice!"
+    - "Hi, sexy!"
+weather:
+  apikey: abcdefghijklmnopqrstuvvxyz123456
+  options:
+    units: si
+    lang: en
+commuter:
+  apikey: abcdefghijklmnopqrstuvvxyz123456
